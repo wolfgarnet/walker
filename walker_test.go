@@ -1,4 +1,4 @@
-package walk
+package walker
 
 import (
 	"github.com/robertkrimen/otto/ast"
