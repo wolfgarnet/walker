@@ -83,6 +83,7 @@ type Visitor interface {
 
 	getHooks() []*Hook
 	AddHook(hook *Hook)
+	ResetHooks()
 }
 
 func (w *Walker) GetPosition(idx file.Idx) *file.Position {
@@ -323,6 +324,10 @@ func (v *VisitorImpl) getHooks() []*Hook {
 
 func (v *VisitorImpl) AddHook(hook *Hook) {
 	v.Hooks = append(v.Hooks, hook)
+}
+
+func (v *VisitorImpl) ResetHooks() {
+	v.Hooks = nil
 }
 
 func (v *VisitorImpl) VisitProgram(w *Walker, node *ast.Program, metadata []Metadata) Metadata {
