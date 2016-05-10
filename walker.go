@@ -8,12 +8,6 @@ import (
 )
 
 type Hook struct {
-	OnProgramStart func(node *ast.Program, metadata []Metadata) error
-	OnProgramEnd   func(node *ast.Program, metadata []Metadata) error
-
-	OnScopeEnter func(node *ast.FunctionLiteral, metadata []Metadata) error
-	OnScopeLeave func(node *ast.FunctionLiteral, metadata []Metadata) error
-
 	OnNode      func(node ast.Node, metadata []Metadata) error
 	OnNodeLeave func(node ast.Node, metadata []Metadata) error
 }
@@ -233,17 +227,7 @@ func (w *Walker) Walk(node ast.Node, metadata []Metadata) (result Metadata) {
 	case *ast.ForStatement:
 		result = w.Visitor.VisitFor(w, n, metadata)
 	case *ast.FunctionLiteral:
-		for _, hook := range w.Visitor.getHooks() {
-			if hook.OnScopeEnter != nil {
-				hook.OnScopeEnter(n, metadata)
-			}
-		}
 		result = w.Visitor.VisitFunction(w, n, metadata)
-		for _, hook := range w.Visitor.getHooks() {
-			if hook.OnScopeLeave != nil {
-				hook.OnScopeLeave(n, metadata)
-			}
-		}
 	case *ast.FunctionStatement:
 		result = w.Visitor.VisitFunctionStatement(w, n, metadata)
 	case *ast.Identifier:
@@ -262,17 +246,7 @@ func (w *Walker) Walk(node ast.Node, metadata []Metadata) (result Metadata) {
 		result = w.Visitor.VisitObject(w, n, metadata)
 	case *ast.Program:
 		w.program = n
-		for _, hook := range w.Visitor.getHooks() {
-			if hook.OnProgramStart != nil {
-				hook.OnProgramStart(n, metadata)
-			}
-		}
 		result = w.Visitor.VisitProgram(w, n, metadata)
-		for _, hook := range w.Visitor.getHooks() {
-			if hook.OnProgramEnd != nil {
-				hook.OnProgramEnd(n, metadata)
-			}
-		}
 	case *ast.ReturnStatement:
 		result = w.Visitor.VisitReturn(w, n, metadata)
 	case *ast.RegExpLiteral:
