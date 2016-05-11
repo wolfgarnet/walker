@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
-	"reflect"
 	"runtime/debug"
 )
 
@@ -163,8 +162,6 @@ func FindVariable(metadata []Metadata, name string) file.Idx {
 func (w *Walker) Walk(node ast.Node, metadata []Metadata) (result Metadata) {
 	w.Current = node
 	w.Parent = ParentMetadata(metadata).Node()
-
-	fmt.Printf("NODE = %v\n", reflect.TypeOf(node))
 
 	// Create metadata for current node
 	md := NewMetadata(node)
