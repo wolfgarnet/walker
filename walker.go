@@ -118,11 +118,11 @@ func (w *Walker) Begin(node ast.Node) {
 		}()
 	}
 	md := []Metadata{NewMetadata(nil)}
-	md = w.Walk(node, md)
+	metadata := w.Walk(node, md)
 
 	for _, hook := range w.Visitor.getHooks() {
 		if hook.OnFinished != nil {
-			hook.OnFinished(node, md)
+			hook.OnFinished(node, metadata)
 		}
 	}
 }
