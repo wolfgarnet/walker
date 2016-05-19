@@ -11,7 +11,7 @@ type Hook struct {
 	OnNode      func(node ast.Node, metadata []Metadata) error
 	OnNodeLeave func(node ast.Node, metadata []Metadata) error
 
-	OnFinished func(node ast.Node, metadata []Metadata) error
+	OnFinished func(node ast.Node, metadata Metadata) error
 }
 
 // Walker can walk a given AST with a visitor
