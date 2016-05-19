@@ -10,6 +10,8 @@ import (
 type Hook struct {
 	OnNode      func(node ast.Node, metadata []Metadata) error
 	OnNodeLeave func(node ast.Node, metadata []Metadata) error
+
+	OnFinished func(node ast.Node, metadata []Metadata) error
 }
 
 // Walker can walk a given AST with a visitor
@@ -116,7 +118,13 @@ func (w *Walker) Begin(node ast.Node) {
 		}()
 	}
 	md := []Metadata{NewMetadata(nil)}
-	w.Walk(node, md)
+	md = w.Walk(node, md)
+
+	for _, hook := range w.Visitor.getHooks() {
+		if hook.OnFinished != nil {
+			hook.OnFinished(node, md)
+		}
+	}
 }
 
 // CollectScope collects information about the given scope
