@@ -43,6 +43,7 @@ type Visitor interface {
 	VisitBranch(walker *Walker, node *ast.BranchStatement, metadata []Metadata) Metadata
 	VisitCall(walker *Walker, node *ast.CallExpression, metadata []Metadata) Metadata
 	VisitCase(walker *Walker, node *ast.CaseStatement, metadata []Metadata) Metadata
+	VisitCase2(walker *Walker, node *ast.CaseStatement2, metadata []Metadata) Metadata
 	VisitCatch(walker *Walker, node *ast.CatchStatement, metadata []Metadata) Metadata
 	VisitConditional(walker *Walker, node *ast.ConditionalExpression, metadata []Metadata) Metadata
 	VisitDebugger(walker *Walker, node *ast.DebuggerStatement, metadata []Metadata) Metadata
@@ -63,6 +64,7 @@ type Visitor interface {
 	VisitNumber(walker *Walker, node *ast.NumberLiteral, metadata []Metadata) Metadata
 	VisitObject(walker *Walker, node *ast.ObjectLiteral, metadata []Metadata) Metadata
 	VisitProgram(walker *Walker, node *ast.Program, metadata []Metadata) Metadata
+	VisitProgram2(walker *Walker, node *ast.Program2, metadata []Metadata) Metadata
 	VisitReturn(walker *Walker, node *ast.ReturnStatement, metadata []Metadata) Metadata
 	VisitRegex(walker *Walker, node *ast.RegExpLiteral, metadata []Metadata) Metadata
 	VisitSequence(walker *Walker, node *ast.SequenceExpression, metadata []Metadata) Metadata
@@ -317,16 +319,12 @@ func (v *VisitorImpl) VisitProgram(w *Walker, node *ast.Program, metadata []Meta
 		w.Walk(e, metadata)
 	}
 
-	// Walking function and variable declarations
-	for _, value := range node.DeclarationList {
-		switch value := value.(type) {
-		case *ast.FunctionDeclaration:
-			//w.Walk(value.Function, metadata)
-		case *ast.VariableDeclaration:
-			// Not needed, variable declarations are found in the AST
-		default:
-			panic(fmt.Errorf("Here be dragons: visit Program.DeclarationList(%T)", value))
-		}
+	return CurrentMetadata(metadata)
+}
+
+func (v *VisitorImpl) VisitProgram2(w *Walker, node *ast.Program2, metadata []Metadata) Metadata {
+	if node.Body != nil {
+		w.Walk(node.Body, metadata)
 	}
 
 	return CurrentMetadata(metadata)
@@ -408,6 +406,17 @@ func (v *VisitorImpl) VisitCase(w *Walker, node *ast.CaseStatement, metadata []M
 		if e != nil {
 			w.Walk(e, metadata)
 		}
+	}
+
+	return CurrentMetadata(metadata)
+}
+
+func (v *VisitorImpl) VisitCase2(w *Walker, node *ast.CaseStatement2, metadata []Metadata) Metadata {
+	if node.Test != nil {
+		w.Walk(node.Test, metadata)
+	}
+	if node.Consequent != nil {
+		w.Walk(node.Consequent, metadata)
 	}
 
 	return CurrentMetadata(metadata)
