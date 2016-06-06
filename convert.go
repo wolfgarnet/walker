@@ -16,16 +16,47 @@ func NewASTReWriter(allBlocks bool) *ASTReWriter {
 // TODO
 func (v *ASTReWriter) VisitCase(w *Walker, node *ast.CaseStatement, metadata []Metadata) Metadata {
 
-	_, isBlock := node.Body.(*ast.BlockStatement)
-	if v.allBlocks && !isBlock {
-		block := &ast.BlockStatement{
-			List: node.Body,
+	if node.Test != nil {
+		w.Walk(node.Test, metadata)
+	}
+	for _, e := range node.Consequent {
+		if e != nil {
+			w.Walk(e, metadata)
 		}
-
-		node.Body = []ast.Statement{block}
 	}
 
-	return v.VisitorImpl.VisitCatch(w, node, metadata)
+	node2 := &ast.CaseStatement2{
+		Test:node.Test,
+	}
+
+	switch {
+	case len(node.Consequent) == 0:
+		node2.Consequent = nil
+	default:
+		node2.Consequent = &ast.BlockStatement{
+			List: node.Consequent,
+		}
+	}
+
+	md := v.VisitorImpl.VisitCatch(w, node, metadata)
+	md["case"] = node2
+	return md
+}
+
+func (v *ASTReWriter) VisitSwitch(w *Walker, node *ast.SwitchStatement, metadata []Metadata) Metadata {
+	w.Walk(node.Discriminant, metadata)
+	for i, e := range node.Body {
+		if e != nil {
+			md := w.Walk(e, metadata)
+			case2, ok := md.Get("case")
+			if !ok {
+				panic("Case statement not walked correctly")
+			}
+
+		}
+	}
+
+	return CurrentMetadata(metadata)
 }
 
 func (v *ASTReWriter) VisitCatch(w *Walker, node *ast.CatchStatement, metadata []Metadata) Metadata {

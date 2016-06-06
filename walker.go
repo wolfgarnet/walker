@@ -70,6 +70,7 @@ type Visitor interface {
 	VisitSequence(walker *Walker, node *ast.SequenceExpression, metadata []Metadata) Metadata
 	VisitString(walker *Walker, node *ast.StringLiteral, metadata []Metadata) Metadata
 	VisitSwitch(walker *Walker, node *ast.SwitchStatement, metadata []Metadata) Metadata
+	VisitSwitch2(walker *Walker, node *ast.SwitchStatement2, metadata []Metadata) Metadata
 	VisitThis(walker *Walker, node *ast.ThisExpression, metadata []Metadata) Metadata
 	VisitThrow(walker *Walker, node *ast.ThrowStatement, metadata []Metadata) Metadata
 	VisitTry(walker *Walker, node *ast.TryStatement, metadata []Metadata) Metadata
@@ -216,6 +217,8 @@ func (w *Walker) Walk(node ast.Node, metadata []Metadata) (result Metadata) {
 		result = w.Visitor.VisitCall(w, n, metadata)
 	case *ast.CaseStatement:
 		result = w.Visitor.VisitCase(w, n, metadata)
+	case *ast.CaseStatement2:
+		result = w.Visitor.VisitCase2(w, n, metadata)
 	case *ast.CatchStatement:
 		result = w.Visitor.VisitCatch(w, n, metadata)
 	case *ast.ConditionalExpression:
@@ -257,6 +260,9 @@ func (w *Walker) Walk(node ast.Node, metadata []Metadata) (result Metadata) {
 	case *ast.Program:
 		w.program = n
 		result = w.Visitor.VisitProgram(w, n, metadata)
+	case *ast.Program2:
+		w.program = n
+		result = w.Visitor.VisitProgram2(w, n, metadata)
 	case *ast.ReturnStatement:
 		result = w.Visitor.VisitReturn(w, n, metadata)
 	case *ast.RegExpLiteral:
@@ -267,6 +273,8 @@ func (w *Walker) Walk(node ast.Node, metadata []Metadata) (result Metadata) {
 		result = w.Visitor.VisitString(w, n, metadata)
 	case *ast.SwitchStatement:
 		result = w.Visitor.VisitSwitch(w, n, metadata)
+	case *ast.SwitchStatement2:
+		result = w.Visitor.VisitSwitch2(w, n, metadata)
 	case *ast.ThisExpression:
 		result = w.Visitor.VisitThis(w, n, metadata)
 	case *ast.ThrowStatement:
@@ -584,6 +592,17 @@ func (v *VisitorImpl) VisitString(w *Walker, node *ast.StringLiteral, metadata [
 }
 
 func (v *VisitorImpl) VisitSwitch(w *Walker, node *ast.SwitchStatement, metadata []Metadata) Metadata {
+	w.Walk(node.Discriminant, metadata)
+	for _, e := range node.Body {
+		if e != nil {
+			w.Walk(e, metadata)
+		}
+	}
+
+	return CurrentMetadata(metadata)
+}
+
+func (v *VisitorImpl) VisitSwitch2(w *Walker, node *ast.SwitchStatement2, metadata []Metadata) Metadata {
 	w.Walk(node.Discriminant, metadata)
 	for _, e := range node.Body {
 		if e != nil {

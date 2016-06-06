@@ -37,6 +37,14 @@ func (md Metadata) AddParent(parent ast.Node) {
 	md[NodeField] = parent
 }
 
+func (md Metadata) Set(key string, value interface{}) {
+	md[key] = value
+}
+
+func (md Metadata) Get(key string) (interface{}, bool) {
+	return md[key]
+}
+
 // CurrentMetadata returns the last added element as the current metadata
 func CurrentMetadata(metadata []Metadata) Metadata {
 	l := len(metadata)
