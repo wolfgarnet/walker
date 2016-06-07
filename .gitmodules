@@ -1,3 +1,0 @@
-[submodule "vendor/github.com/robertkrimen/otto"]
-	path = vendor/github.com/robertkrimen/otto
-	url = https://github.com/wolfgarnet/otto.git
