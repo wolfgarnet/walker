@@ -57,13 +57,24 @@ func ParentMetadata(metadata []Metadata) Metadata {
 	return metadata[l-2]
 }
 
-func FindIthParentStatement(metadata []Metadata, i int) ast.Statement {
+// FindIthParentStatement can return a program, which is not a statement
+func FindIthParentStatement(metadata []Metadata, i int) ast.Node {
 	for j := len(metadata) - 1; j >= 0; j-- {
 		parent := metadata[j][NodeField]
 		statement, ok := parent.(ast.Statement)
 		if ok {
 			if i == 0 {
 				return statement
+			}
+
+			i--
+		}
+
+		// Alternatively, check if it's a program
+		program, isProgram := parent.(*ast.Program)
+		if isProgram {
+			if i == 0 {
+				return program
 			}
 
 			i--
