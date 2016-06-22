@@ -84,6 +84,32 @@ func FindIthParentStatement(metadata []Metadata, i int) ast.Node {
 	return nil
 }
 
+func FindIthParentStatementMetadata(metadata []Metadata, i int) []Metadata {
+	for j := len(metadata) - 1; j >= 0; j-- {
+		parent := metadata[j][NodeField]
+		_, ok := parent.(ast.Statement)
+		if ok {
+			if i == 0 {
+				return metadata[:j]
+			}
+
+			i--
+		}
+
+		// Alternatively, check if it's a program
+		_, isProgram := parent.(*ast.Program)
+		if isProgram {
+			if i == 0 {
+				return metadata[:j]
+			}
+
+			i--
+		}
+	}
+
+	return nil
+}
+
 func FindParentStatement(metadata []Metadata) ast.Statement {
 	for i := len(metadata) - 1; i >= 0; i-- {
 		parent := metadata[i][NodeField]
