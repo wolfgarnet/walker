@@ -20,6 +20,7 @@ type Walker struct {
 	Current, Parent ast.Node
 	CatchPanic      bool
 	program         *ast.Program
+	OnFailed        func(node ast.Node)
 }
 
 func NewWalker(visitor Visitor) *Walker {
@@ -112,6 +113,9 @@ func (w *Walker) Begin(node ast.Node) {
 					} else {
 						fmt.Printf("Unknown position!\n")
 					}
+				}
+				if w.OnFailed != nil {
+					w.OnFailed(w.Current)
 				}
 				fmt.Printf("%s\n", debug.Stack())
 			}
