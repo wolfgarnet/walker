@@ -90,7 +90,7 @@ func FindIthParentStatementMetadata(metadata []Metadata, i int) []Metadata {
 		_, ok := parent.(ast.Statement)
 		if ok {
 			if i == 0 {
-				return metadata[:j]
+				return metadata[:j+1]
 			}
 
 			i--
@@ -100,7 +100,7 @@ func FindIthParentStatementMetadata(metadata []Metadata, i int) []Metadata {
 		_, isProgram := parent.(*ast.Program)
 		if isProgram {
 			if i == 0 {
-				return metadata[:j]
+				return metadata[:j+1]
 			}
 
 			i--
