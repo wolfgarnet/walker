@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
-	"reflect"
 )
 
 const (
@@ -136,7 +135,7 @@ func FindParentFunction(metadata []Metadata) *ast.FunctionLiteral {
 
 // String displays information about the metadata
 func (md Metadata) String() string {
-	return fmt.Sprintf("{node:%v}", reflect.TypeOf(md[NodeField]))
+	return fmt.Sprintf("{node:%T@%p}", md[NodeField], md[NodeField])
 }
 
 type Variables map[string]file.Idx
