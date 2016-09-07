@@ -97,8 +97,8 @@ func (w *Walker) Begin(node ast.Node) {
 		defer func() {
 			if r := recover(); r != nil {
 				fmt.Printf("Recovered from %v\n", r)
-				fmt.Printf("Panicked at node: %v\n", w.Current)
-				fmt.Printf("Parent node is %v\n", w.Parent)
+				fmt.Printf("Panicked at node: %T(%v)\n", w.Current, w.Current)
+				fmt.Printf("Parent node is %T(%v)\n", w.Parent, w.Parent)
 
 				program, isProgram := node.(*ast.Program)
 				if isProgram {
@@ -117,6 +117,7 @@ func (w *Walker) Begin(node ast.Node) {
 				if w.OnFailed != nil {
 					w.OnFailed(w.Current, program)
 				}
+				fmt.Printf("DEBUG STACK\n")
 				fmt.Printf("%s\n", debug.Stack())
 			}
 		}()
