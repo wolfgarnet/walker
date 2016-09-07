@@ -97,10 +97,13 @@ func (w *Walker) Begin(node ast.Node) {
 		defer func() {
 			if r := recover(); r != nil {
 				fmt.Printf("Recovered from %v\n", r)
-				fmt.Printf("Panicked at node: %T(%v)\n", w.Current, w.Current)
-				fmt.Printf("Parent node is %T(%v)\n", w.Parent, w.Parent)
+				fmt.Printf("Panicked at node: %T(%+v)\n", w.Current, w.Current)
+				fmt.Printf("Parent node is %T(%+v)\n", w.Parent, w.Parent)
 
 				program, isProgram := node.(*ast.Program)
+				if w.OnFailed != nil {
+					w.OnFailed(w.Current, program)
+				}
 				if isProgram {
 					var pos *file.Position
 					if w.Current != nil {
@@ -114,10 +117,7 @@ func (w *Walker) Begin(node ast.Node) {
 						fmt.Printf("Unknown position!\n")
 					}
 				}
-				if w.OnFailed != nil {
-					w.OnFailed(w.Current, program)
-				}
-				fmt.Printf("DEBUG STACK\n")
+				fmt.Printf("Displaying debug stack\n")
 				fmt.Printf("%s\n", debug.Stack())
 			}
 		}()
