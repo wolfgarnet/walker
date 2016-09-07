@@ -20,7 +20,7 @@ type Walker struct {
 	Current, Parent ast.Node
 	CatchPanic      bool
 	program         *ast.Program
-	OnFailed        func(node ast.Node)
+	OnFailed        func(node ast.Node, program *ast.Program)
 }
 
 func NewWalker(visitor Visitor) *Walker {
@@ -115,7 +115,7 @@ func (w *Walker) Begin(node ast.Node) {
 					}
 				}
 				if w.OnFailed != nil {
-					w.OnFailed(w.Current)
+					w.OnFailed(w.Current, program)
 				}
 				fmt.Printf("%s\n", debug.Stack())
 			}
