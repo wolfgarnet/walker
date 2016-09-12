@@ -5,6 +5,7 @@ import (
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
 	"runtime/debug"
+"strings"
 )
 
 type Hook struct {
@@ -17,7 +18,7 @@ type Hook struct {
 // Walker can walk a given AST with a visitor
 type Walker struct {
 	Visitor         Visitor
-	Current, Parent ast.Node
+	Current, Parent, Root ast.Node
 	CatchPanic      bool
 	program         *ast.Program
 	OnFailed        func(node ast.Node, program *ast.Program)
@@ -122,6 +123,8 @@ func (w *Walker) Begin(node ast.Node) {
 			}
 		}()
 	}
+
+	w.Root = node
 	md := []Metadata{NewMetadata(nil)}
 	metadata := w.Walk(node, md)
 
@@ -130,6 +133,46 @@ func (w *Walker) Begin(node ast.Node) {
 			hook.OnFinished(node, metadata)
 		}
 	}
+}
+
+var (
+	snippetLength int  = 50
+	useNewLines   bool = true
+)
+
+func (w *Walker) Snippet(node ast.Node, before, after file.Idx) string {
+	program, isProgram := w.Root.(*ast.Program)
+	if !isProgram {
+		return "N/A"
+	}
+
+	var snippet string
+	switch w.Root.(type) {
+	case *ast.Program, *ast.FunctionLiteral, *ast.FunctionStatement, *ast.BlockStatement, *ast.ExpressionStatement, *ast.CallExpression:
+		diff := node.Idx1() - node.Idx0()
+		end := node.Idx1() - 1
+		if int(diff) > snippetLength {
+			end = node.Idx0() + file.Idx(snippetLength)
+		}
+		snippet = program.File.Source()[node.Idx0()-1-before:end+after] + " ..."
+
+	default:
+		before = node.Idx0() - 1 - before
+		if before < 0 {
+			before = 0
+		}
+		after = node.Idx1() - 1 + after
+		if after > program.Idx1() {
+			after = program.Idx1()
+		}
+		snippet = program.File.Source()[before:after]
+	}
+
+	position := program.File.Position(node.Idx0() + 1)
+	if !useNewLines {
+		snippet = strings.Replace(snippet, "\n", " ", -1)
+	}
+	return fmt.Sprintf("%v,%v: \"%v\"", position.Line, position.Column, snippet)
 }
 
 // CollectScope collects information about the given scope
